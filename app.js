@@ -37,13 +37,18 @@ var budgetController = (function() {
         : (ID = 1);
 
       //Create a new item based on item type
-      type === "inc"
-        ? (newItem = new Income(ID, description, value))
-        : (newItem = new Expense(ID, description, value, 0));
+      if (type === "inc") {
+        newItem = new Income(ID, description, value);
+      } else if (type === "exp") {
+        newItem = new Expense(ID, description, value, 0);
+      }
 
       //Push it into our data structure
       data.allItems[type].push(newItem);
       return newItem;
+    },
+    getAllItems: function() {
+      return data.allItems;
     }
   };
 })();
@@ -56,7 +61,9 @@ var UIController = (function() {
     inputType: ".add__type",
     inputDescription: ".add__description",
     inputValue: ".add__value",
-    inputButton: ".add__btn"
+    inputButton: ".add__btn",
+    expensesContainer: ".expenses__list",
+    incomeContainer: ".income__list"
   };
 
   // Get DOM
@@ -72,6 +79,29 @@ var UIController = (function() {
         value: budgetValue.value,
         description: budgetDescription.value
       };
+    },
+
+    addListItem: function(item, type) {
+      var html, newHtml, element;
+
+      //1. Create a html string with placeholder text
+      if (type === "inc") {
+        element = DOMStrings.incomeContainer;
+        html =
+          '<div class="item clearfix" id="inc-%id%"> <div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">+ %value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+      } else if (type === "exp") {
+        element = DOMStrings.expensesContainer;
+        html =
+          '<div class="item clearfix" id="expense-%id%"><div class="item__description">%description"</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+      }
+
+      //2. Replace the placeholder text with actual data
+      newHtml = html.replace("%id%", item.id);
+      newHtml = newHtml.replace("%description%", item.description);
+      newHtml = newHtml.replace("%value%", item.value);
+
+      //3. Insert the html into the DOM
+      document.querySelector(element).insertAdjacentHTML("beforeend", newHtml);
     },
 
     // Return a class names
@@ -103,8 +133,8 @@ var appController = (function(budgetCtrl, UICtrl) {
     input = UICtrl.getInput();
     //2. Add the item to the budget controller
     item = budgetController.addItem(input.type, input.description, input.value);
-    console.log(item);
     //3. Add the item to the UI
+    UICtrl.addListItem(item, input.type);
     //4. Calculate the budget
     //5. Display the budget on the UI
   };
