@@ -104,6 +104,20 @@ var UIController = (function() {
       document.querySelector(element).insertAdjacentHTML("beforeend", newHtml);
     },
 
+    // Clear the input fields
+    clearFields: function() {
+      var fields, fieldsArray;
+      fields = document.querySelectorAll(
+        DOMStrings.inputDescription + ", " + DOMStrings.inputValue
+      );
+
+      fieldsArray = Array.prototype.slice.call(fields);
+
+      fieldsArray.forEach(element => {
+        element.value = "";
+      });
+    },
+
     // Return a class names
     getDOMStrings: function() {
       return DOMStrings;
@@ -132,11 +146,13 @@ var appController = (function(budgetCtrl, UICtrl) {
     //1. Get the field input data
     input = UICtrl.getInput();
     //2. Add the item to the budget controller
-    item = budgetController.addItem(input.type, input.description, input.value);
+    item = budgetCtrl.addItem(input.type, input.description, input.value);
     //3. Add the item to the UI
     UICtrl.addListItem(item, input.type);
-    //4. Calculate the budget
-    //5. Display the budget on the UI
+    //4. Clear the input fields
+    UICtrl.clearFields();
+    //5. Calculate the budget
+    //6. Display the budget on the UI
   };
 
   return {
