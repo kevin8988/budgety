@@ -22,7 +22,33 @@ var budgetController = (function() {
     totals: {
       exp: 0,
       inc: 0
-    }
+    },
+    budget: 0,
+    percentage: -1
+  };
+
+  //  Calculate and set each total
+  var calculateTotal = function(type) {
+    var total = 0;
+
+    data.allItems[type].forEach(element => {
+      total += element.value;
+    });
+
+    data.totals[type] = total;
+  };
+
+  // Calculate and set the percentage
+  var calculatePercentage = function() {
+    var x, y;
+    y = 100 * data.totals.exp;
+    x = data.totals.inc;
+    data.percentage = y / x;
+  };
+
+  // Calculate and set the budget
+  var calculateBudget = function() {
+    data.budget = data.totals.inc - data.totals.exp;
   };
 
   return {
@@ -48,32 +74,14 @@ var budgetController = (function() {
       return newItem;
     },
 
-    //  Calculate the income
-    calculateIncome: function() {
-      var incTotal = 0;
-
-      data.allItems.inc.forEach(element => {
-        incTotal += element.value;
-      });
-
-      return incTotal;
-    },
-
-    //  Calculate the expense
-    calculateExpense: function() {
-      var expTotal = 0;
-
-      data.allItems.exp.forEach(element => {
-        expTotal += element.value;
-      });
-
-      return expTotal;
-    },
-
     //  Calculate the budget
     calculateBudget: function() {
-      return this.calculateIncome() - this.calculateExpense();
+      calculateTotal("inc");
+      calculateTotal("exp");
+      calculateBudget();
+      calculatePercentage();
     },
+
     getAllItems: function() {
       return data.allItems;
     }
