@@ -48,20 +48,31 @@ var budgetController = (function() {
       return newItem;
     },
 
-    //  Calculate the budget
-    calculateBudget: function() {
-      var incTotal = 0,
-        expTotal = 0;
-
-      data.allItems.exp.forEach(element => {
-        expTotal += element.value;
-      });
+    //  Calculate the income
+    calculateIncome: function() {
+      var incTotal = 0;
 
       data.allItems.inc.forEach(element => {
         incTotal += element.value;
       });
 
-      return incTotal - expTotal;
+      return incTotal;
+    },
+
+    //  Calculate the expense
+    calculateExpense: function() {
+      var expTotal = 0;
+
+      data.allItems.exp.forEach(element => {
+        expTotal += element.value;
+      });
+
+      return expTotal;
+    },
+
+    //  Calculate the budget
+    calculateBudget: function() {
+      return this.calculateIncome() - this.calculateExpense();
     },
     getAllItems: function() {
       return data.allItems;
@@ -181,7 +192,7 @@ var appController = (function(budgetCtrl, UICtrl) {
       //3. Add the item to the UI
       UICtrl.addListItem(item, input.type);
       //4. Clear the input fields
-      UICtrl.clearFields(); 
+      UICtrl.clearFields();
       //5. Calculate and display the budget
       updateBudget();
     }
