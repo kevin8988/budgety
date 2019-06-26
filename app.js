@@ -16,6 +16,8 @@ var budgetController = (function() {
   Expense.prototype.calcPercentage = function(totalIncome) {
     if (totalIncome > 0) {
       this.percentage = Math.round((this.value / totalIncome) * 100);
+    } else {
+      this.percentage = -1;
     }
   };
 
@@ -149,6 +151,7 @@ var UIController = (function() {
     budgetIncomeValue: ".budget__income--value",
     budgetExpensesPercentage: ".budget__expenses--percentage",
     budgetExpenseValue: ".budget__expenses--value",
+    budgetPercentageValue: ".item__percentage",
     container: ".container"
   };
 
@@ -178,7 +181,7 @@ var UIController = (function() {
       } else if (type === "exp") {
         element = DOMStrings.expensesContainer;
         html =
-          '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">%percentage%%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+          '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">---</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
       }
 
       //2. Replace the placeholder text with actual data
@@ -240,7 +243,21 @@ var UIController = (function() {
     },
 
     displayPercentages: function(percentages) {
-      
+      var fields = document.querySelectorAll(DOMStrings.budgetPercentageValue);
+
+      var nodeListForEach = (list, callback) => {
+        for (var i = 0; i < list.length; i++) {
+          callback(list[i], i);
+        }
+      };
+
+      nodeListForEach(fields, (element, index) => {
+        if (percentages[index] > 0) {
+          element.textContent = percentages[index] + "%";
+        } else {
+          element.textContent = "---";
+        }
+      });
     },
 
     // Return a class names
@@ -286,7 +303,7 @@ var appController = (function(budgetCtrl, UICtrl) {
     //2. Read percentages from the budget
     var percentages = budgetController.getPercentages();
     //3. Update the UI
-    console.log(percentages);
+    UICtrl.displayPercentages(percentages);
   };
 
   //Add an item
