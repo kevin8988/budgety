@@ -251,6 +251,19 @@ var UIController = (function() {
       fieldsArray[0].focus();
     },
 
+    changeType: function() {
+      var descriptionInput, valueInput, typeInput, inputButton;
+      descriptionInput = document.querySelector(DOMStrings.inputDescription);
+      valueInput = document.querySelector(DOMStrings.inputValue);
+      typeInput = document.querySelector(DOMStrings.inputType);
+      inputButton = document.querySelector(DOMStrings.inputButton);
+
+      descriptionInput.classList.toggle("red-focus");
+      valueInput.classList.toggle("red-focus");
+      typeInput.classList.toggle("red-focus");
+      inputButton.classList.toggle("red");
+    },
+
     // Display the budget value
     displayBudget: function(data) {
       var budgetField,
@@ -354,6 +367,10 @@ var appController = (function(budgetCtrl, UICtrl) {
     document
       .querySelector(DOMStrings.container)
       .addEventListener("click", appcrtlDeleteItem);
+
+    document
+      .querySelector(DOMStrings.inputType)
+      .addEventListener("change", UICtrl.changeType);
   };
 
   // Update a budget
