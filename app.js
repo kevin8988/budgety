@@ -177,17 +177,17 @@ var UIController = (function() {
       if (type === "inc") {
         element = DOMStrings.incomeContainer;
         html =
-          '<div class="item clearfix" id="inc-%id%"> <div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">+ %value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+          '<div class="item clearfix" id="inc-%id%"> <div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">%value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
       } else if (type === "exp") {
         element = DOMStrings.expensesContainer;
         html =
-          '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">---</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+          '<div class="item clearfix" id="exp-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value"> %value%</div><div class="item__percentage">---</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
       }
 
       //2. Replace the placeholder text with actual data
       newHtml = html.replace("%id%", item.id);
       newHtml = newHtml.replace("%description%", item.description);
-      newHtml = newHtml.replace("%value%", item.value);
+      newHtml = newHtml.replace("%value%", this.formatNumber(item.value, type));
 
       //3. Insert the html into the DOM
       document.querySelector(element).insertAdjacentHTML("beforeend", newHtml);
@@ -220,7 +220,8 @@ var UIController = (function() {
       var budgetField,
         budgetIncomeField,
         budgetExpenseField,
-        budgetExpensePercentageField;
+        budgetExpensePercentageField,
+        type;
 
       budgetField = document.querySelector(DOMStrings.budgetValue);
       budgetIncomeField = document.querySelector(DOMStrings.budgetIncomeValue);
@@ -231,9 +232,17 @@ var UIController = (function() {
         DOMStrings.budgetExpensesPercentage
       );
 
-      budgetField.textContent = data.budget;
-      budgetIncomeField.textContent = data.totalInc;
-      budgetExpenseField.textContent = data.totalExp;
+      if (data.budget > 0) {
+        type = "inc";
+      } else if (data.budget < 0) {
+        type = "exp";
+      } else {
+        type = "";
+      }
+
+      budgetField.textContent = this.formatNumber(data.budget, type);
+      budgetIncomeField.textContent = this.formatNumber(data.totalInc, "inc");
+      budgetExpenseField.textContent = this.formatNumber(data.totalExp, "exp");
 
       if (data.percentage > 0) {
         budgetExpensePercentageField.textContent = data.percentage + "%";
@@ -258,6 +267,41 @@ var UIController = (function() {
           element.textContent = "---";
         }
       });
+    },
+
+    formatNumber: function(number, type) {
+      var numberSplit,
+        decimalPart,
+        integerPart,
+        integerPartFormatted = "",
+        count = 0;
+      number = Math.abs(number);
+      number = number.toFixed(2);
+
+      numberSplit = number.split(".");
+
+      integerPart = numberSplit[0];
+
+      for (var i = integerPart.length - 1; i >= 0; i--) {
+        if (count === 3) {
+          integerPartFormatted = "," + integerPartFormatted;
+          count = 0;
+        }
+        integerPartFormatted = integerPart.charAt(i) + integerPartFormatted;
+        count++;
+      }
+
+      decimalPart = numberSplit[1];
+
+      if (type === "inc") {
+        type = "+";
+      } else if (type === "exp") {
+        type = "-";
+      } else {
+        type = "";
+      }
+
+      return type + " " + integerPartFormatted + "." + decimalPart;
     },
 
     // Return a class names
