@@ -160,6 +160,41 @@ var UIController = (function() {
   budgetDescription = document.querySelector(DOMStrings.inputDescription);
   budgetValue = document.querySelector(DOMStrings.inputValue);
 
+  var formatNumber = function(number, type) {
+    var numberSplit,
+      decimalPart,
+      integerPart,
+      integerPartFormatted = "",
+      count = 0;
+    number = Math.abs(number);
+    number = number.toFixed(2);
+
+    numberSplit = number.split(".");
+
+    integerPart = numberSplit[0];
+
+    for (var i = integerPart.length - 1; i >= 0; i--) {
+      if (count === 3) {
+        integerPartFormatted = "," + integerPartFormatted;
+        count = 0;
+      }
+      integerPartFormatted = integerPart.charAt(i) + integerPartFormatted;
+      count++;
+    }
+
+    decimalPart = numberSplit[1];
+
+    if (type === "inc") {
+      type = "+";
+    } else if (type === "exp") {
+      type = "-";
+    } else {
+      type = "";
+    }
+
+    return type + " " + integerPartFormatted + "." + decimalPart;
+  };
+
   return {
     // Return a input values
     getInput: function() {
@@ -187,7 +222,7 @@ var UIController = (function() {
       //2. Replace the placeholder text with actual data
       newHtml = html.replace("%id%", item.id);
       newHtml = newHtml.replace("%description%", item.description);
-      newHtml = newHtml.replace("%value%", this.formatNumber(item.value, type));
+      newHtml = newHtml.replace("%value%", formatNumber(item.value, type));
 
       //3. Insert the html into the DOM
       document.querySelector(element).insertAdjacentHTML("beforeend", newHtml);
@@ -240,9 +275,9 @@ var UIController = (function() {
         type = "";
       }
 
-      budgetField.textContent = this.formatNumber(data.budget, type);
-      budgetIncomeField.textContent = this.formatNumber(data.totalInc, "inc");
-      budgetExpenseField.textContent = this.formatNumber(data.totalExp, "exp");
+      budgetField.textContent = formatNumber(data.budget, type);
+      budgetIncomeField.textContent = formatNumber(data.totalInc, "inc");
+      budgetExpenseField.textContent = formatNumber(data.totalExp, "exp");
 
       if (data.percentage > 0) {
         budgetExpensePercentageField.textContent = data.percentage + "%";
@@ -267,42 +302,7 @@ var UIController = (function() {
           element.textContent = "---";
         }
       });
-    },
-
-    formatNumber: function(number, type) {
-      var numberSplit,
-        decimalPart,
-        integerPart,
-        integerPartFormatted = "",
-        count = 0;
-      number = Math.abs(number);
-      number = number.toFixed(2);
-
-      numberSplit = number.split(".");
-
-      integerPart = numberSplit[0];
-
-      for (var i = integerPart.length - 1; i >= 0; i--) {
-        if (count === 3) {
-          integerPartFormatted = "," + integerPartFormatted;
-          count = 0;
-        }
-        integerPartFormatted = integerPart.charAt(i) + integerPartFormatted;
-        count++;
-      }
-
-      decimalPart = numberSplit[1];
-
-      if (type === "inc") {
-        type = "+";
-      } else if (type === "exp") {
-        type = "-";
-      } else {
-        type = "";
-      }
-
-      return type + " " + integerPartFormatted + "." + decimalPart;
-    },
+    },    
 
     // Return a class names
     getDOMStrings: function() {
